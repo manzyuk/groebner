@@ -9,17 +9,19 @@ module Ordering
     where
 
 import Degree
-
 import Monomial (Monomial, exponent)
+
 import Prelude hiding (lex, exponent)
 
+-- Class of enumerable types.  We add 'Ord' to the context in order to
+-- save some typing (and because it makes sense).
 class Ord a => Enumerable a where
     enumerate :: [a]
 
-data Lex
-data RevLex
-data DegLex
-data DegRevLex
+data Lex         -- Lexicographic ordering
+data RevLex      -- Reverse lexicographic ordering
+data DegLex      -- Degree lexicographic ordering
+data DegRevLex   -- Reverse degree lexicographic ordering
 
 lex' :: Ord v => Monomial o v -> Monomial o v -> [v] -> Bool
 lex' a b []     = False
@@ -35,6 +37,8 @@ deglex    a b = degree a < degree b
 degrevlex a b = degree a < degree b
                 || (degree a == degree b && b `revlex` a)
 
+-- The type variable 'o' in 'Monomial o v' is used as a tag, so that
+-- we can define different 'Ord' instances on the 'Monomial' type.
 instance Enumerable v => Ord (Monomial Lex v) where
     (<) = lex
 
