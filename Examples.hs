@@ -9,23 +9,23 @@ data XY = X | Y deriving (Eq, Ord, Show)
 instance Enumerable XY where
     enumerate = [X, Y]
 
-x, y :: Ord (Monomial o XY) => Polynomial Rational o XY
+x, y :: Ord (Monomial XY o) => Polynomial Rational XY o
 x = variable X
 y = variable Y
 
-ideal :: Ord (Monomial o XY) => [Polynomial Rational o XY]
+ideal :: Ord (Monomial XY o) => [Polynomial Rational XY o]
 ideal = [x ^ 10 + x ^ 9 * y ^ 2, y ^ 8 - x ^ 2 * y ^ 7]
 
-basis :: Ord (Monomial o XY) => [Polynomial Rational o XY]
+basis :: Ord (Monomial XY o) => [Polynomial Rational XY o]
 basis = groebner ideal
 
 main = do putStrLn $ "Ideal: "
-                       ++ show (ideal :: [Polynomial Rational Lex XY])
+                       ++ show (ideal :: [Polynomial Rational XY Lex])
           putStrLn $ "Lex basis: "
-                       ++ show (basis :: [Polynomial Rational Lex XY])
+                       ++ show (basis :: [Polynomial Rational XY Lex])
           putStrLn $ "Revlex basis: "
-                       ++ show (basis :: [Polynomial Rational RevLex XY])
+                       ++ show (basis :: [Polynomial Rational XY RevLex])
           putStrLn $ "Deglex basis: "
-                       ++ show (basis :: [Polynomial Rational DegLex XY])
+                       ++ show (basis :: [Polynomial Rational XY DegLex])
           putStrLn $ "Degrevlex basis: "
-                       ++ show (basis :: [Polynomial Rational DegRevLex XY])
+                       ++ show (basis :: [Polynomial Rational XY DegRevLex])

@@ -6,8 +6,8 @@ import Polynomial
 
 -- Normal form of a polynomial with respect to a list of polynomials
 -- using Buchberger's algorithm.
-nf :: (Fractional r, Ord v, Show v, Ord (Monomial o v))
-   => Polynomial r o v -> [Polynomial r o v] -> Polynomial r o v
+nf :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
+   => Polynomial r v o -> [Polynomial r v o] -> Polynomial r v o
 nf f s = go f
     where
       go h | h == 0      = 0
@@ -18,8 +18,8 @@ nf f s = go f
 
 -- Groebner basis algorithm.  Takes a list of generators of an ideal
 -- and returns a Groebner basis of that ideal.
-groebner :: (Fractional r, Ord v, Show v, Ord (Monomial o v))
-         => [Polynomial r o v] -> [Polynomial r o v]
+groebner :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
+         => [Polynomial r v o] -> [Polynomial r v o]
 groebner i = go i ps
     where
       ps = [ (f, g) | f <- i, g <- i, f /= g ]

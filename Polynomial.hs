@@ -15,9 +15,9 @@ import Monomial
 
 import Data.Monoid
 
-data Term r o v = T r (Monomial o v) deriving (Eq, Show)
+data Term r v o = T r (Monomial v o) deriving (Eq, Show)
 
-instance (Num r, Ord v) => Monoid (Term r o v) where
+instance (Num r, Ord v) => Monoid (Term r v o) where
     mempty = T 1 mempty
     T a m `mappend` T b n = T (a * b) (m `mappend` n)
 
@@ -26,20 +26,20 @@ instance (Num r, Ord v) => Monoid (Term r o v) where
 -- extraction of the leading monomial very simple and fast.  Besides,
 -- the relative order of terms does not change if the polynomial is
 -- multiplied with a term.
-newtype Polynomial r o v = P [Term r o v] deriving Eq
+newtype Polynomial r v o = P [Term r v o] deriving Eq
 
 -- Multiply a polynomial with a term.
-(*^) :: (Num r, Ord v) => Term r o v -> Polynomial r o v -> Polynomial r o v
+(*^) :: (Num r, Ord v) => Term r v o -> Polynomial r v o -> Polynomial r v o
 u *^ P vs = P [ u `mappend` v | v <- vs ]
 
-instance Ord v => HasDegree (Polynomial r o v) where
+instance Ord v => HasDegree (Polynomial r v o) where
     degree (P []) = -1
     degree (P ts) = maximum [ degree m | T _ m <- ts ]
 
 -- We are trying to make the display of polynomials as close to the
 -- mathematical notation as possible.  Since we don't know what the
 -- ground field 'r' can be, we apply some heuristics.
-instance (Num r, Ord v, Show v) => Show (Polynomial r o v) where
+instance (Num r, Ord v, Show v) => Show (Polynomial r v o) where
     show (P [])     = "0"
     show (P (t:ts)) = showHead t ++ showTail ts
         where
@@ -60,8 +60,8 @@ instance (Num r, Ord v, Show v) => Show (Polynomial r o v) where
 
 -- Arithmetic operations on polynomials are defined to preserve the
 -- invariant of the representation of polynomials.
-instance (Num r, Ord v, Show v, Ord (Monomial o v))
-    => Num (Polynomial r o v) where
+instance (Num r, Ord v, Show v, Ord (Monomial v o))
+    => Num (Polynomial r v o) where
     f@(P (u@(T a m):us)) + g@(P (v@(T b n):vs))
         | m == n && a + b /= 0
         = let P ws = P us + P vs in P $ T (a + b) m:ws
@@ -87,22 +87,22 @@ instance (Num r, Ord v, Show v, Ord (Monomial o v))
     fromInteger = constant . fromInteger
 
 -- View a constant 'c' as a polynomial (of degree 0 unless c is 0).
-constant :: (Num r, Ord v) => r -> Polynomial r o v
+constant :: (Num r, Ord v) => r -> Polynomial r v o
 constant 0 = P []
 constant c = P [T c mempty]
 
 -- View a variable 'v' as a polynomial (of degree 1).
-variable :: (Num r, Eq v) => v -> Polynomial r o v
+variable :: (Num r, Eq v) => v -> Polynomial r v o
 variable x = P [T 1 (inject x)]
 
 -- Leading monomial of a polynomial.
-lm :: Polynomial r o v -> Monomial o v
+lm :: Polynomial r v o -> Monomial v o
 lm (P ((T _ m):_)) = m
 lm (P [])          = error "lm: zero polynomial"
 
 -- s-polynomial of a pair of polynomials.
-spoly :: (Fractional r, Ord v, Show v, Ord (Monomial o v))
-      => Polynomial r o v -> Polynomial r o v -> Polynomial r o v
+spoly :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
+      => Polynomial r v o -> Polynomial r v o -> Polynomial r v o
 spoly f@(P (u@(T a m):us)) g@(P (v@(T b n):vs)) = n' *^ f - m' *^ g
     where
       n' = T 1       (complement m n)
