@@ -4,6 +4,8 @@ module Groebner (nf, groebner) where
 import Monomial
 import Polynomial
 
+import Data.List
+
 -- Normal form of a polynomial with respect to a list of polynomials
 -- using Buchberger's algorithm.
 nf :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
@@ -22,10 +24,15 @@ groebner :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
          => [Polynomial r v o] -> [Polynomial r v o]
 groebner i = go i ps
     where
-      ps = [ (f, g) | f <- i, g <- i, f /= g ]
+      ps = [ (f, g) | f <- i, g <- i, f /= g, not (pc f g) ]
       go s [] = s
       go s ps@((f, g):ps')
           | h == 0    = go s ps'
-          | otherwise = go (h:s) (ps' ++ [ (h, f) | f <- s ])
+          | otherwise = go (h:s) (ps' ++ [ (h, f) | f <- s, not (pc h f) ])
           where
             h = nf (spoly f g) s
+
+-- Product criterion: if the lcm of the leading monomials of f and g
+-- is their product, then the s-poly of f and g reduces to 0 w.r.t.
+-- the set {f, g}.
+pc f g = null (variables (lm f) `intersect` variables (lm g))

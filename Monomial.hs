@@ -4,6 +4,7 @@ module Monomial
     , toList
     , fromList
     , exponent
+    , variables
     , complement
     , isDivisibleBy
     )
@@ -40,6 +41,9 @@ fromList xs = M $ Map.fromList [ p | p@(x, n) <- xs, n /= 0 ]
 -- Exponent of a variable in a monomial.
 exponent :: Ord v => v -> Monomial v o -> Int
 exponent x (M m) = fromMaybe 0 (Map.lookup x m)
+
+variables :: Ord v => Monomial v o -> [v]
+variables = map fst . toList
 
 instance (Ord v, Show v) => Show (Monomial v o) where
     show m
