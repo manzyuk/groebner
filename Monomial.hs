@@ -1,8 +1,9 @@
 module Monomial
     ( Monomial
     , inject
-    , Monomial.exponent
-    , support
+    , toList
+    , fromList
+    , exponent
     , complement
     , isDivisibleBy
     )
@@ -16,32 +17,35 @@ import qualified Data.Map as Map
 import Data.Maybe
 import Data.Monoid
 
-import Prelude hiding (lcm, div)
+import Prelude hiding (exponent, lcm, div)
 
 newtype Monomial o v = M (Map v Int) deriving Eq
 
 inject :: Eq v => v -> Monomial o v
 inject x = M $ Map.singleton x 1
 
+toList :: Ord v => Monomial o v -> [(v, Int)]
+toList (M m) = [ p | p@(x, n) <- Map.toList m, n /= 0 ]
+
+fromList :: Ord v => [(v, Int)] -> Monomial o v
+fromList xs = M $ Map.fromList [ p | p@(x, n) <- xs, n /= 0 ]
+
 exponent :: Ord v => v -> Monomial o v -> Int
 exponent x (M m) = fromMaybe 0 (Map.lookup x m)
 
-support :: Ord v => Monomial o v -> [(v, Int)]
-support (M m) = [ p | p@(x, n) <- Map.toList m, n /= 0 ]
-
 instance (Ord v, Show v) => Show (Monomial o v) where
     show m
-        | null sup
+        | null support
         = "1"
         | otherwise
         = concat [ show x ++ suffix
-                 | (x, n) <- sup
+                 | (x, n) <- support
                  , let suffix = if n == 1
                                 then ""
                                 else "^" ++ show n
                  ]
         where
-          sup = support m
+          support = toList m
 
 instance Ord v => Monoid (Monomial o v) where
     mempty = M Map.empty
