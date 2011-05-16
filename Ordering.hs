@@ -1,11 +1,17 @@
 {-# LANGUAGE FlexibleInstances, EmptyDataDecls #-}
-module Ordering where
+module Ordering
+    ( Lex
+    , RevLex
+    , DegLex
+    , DegRevLex
+    , Enumerable (..)
+    )
+    where
 
 import Degree
 
-import Monomial (Monomial)
-import qualified Monomial as Monomial
-import Prelude hiding (lex)
+import Monomial (Monomial, exponent)
+import Prelude hiding (lex, exponent)
 
 class Ord a => Enumerable a where
     enumerate :: [a]
@@ -17,9 +23,8 @@ data DegRevLex
 
 lex' :: Ord v => Monomial o v -> Monomial o v -> [v] -> Bool
 lex' a b []     = False
-lex' a b (x:xs)
-    = Monomial.exponent x a < Monomial.exponent x b
-      || (Monomial.exponent x a == Monomial.exponent x b && lex' a b xs)
+lex' a b (x:xs) = exponent x a < exponent x b
+                  || (exponent x a == exponent x b && lex' a b xs)
 
 lex, revlex, deglex, degrevlex :: Enumerable v
                                => Monomial o v -> Monomial o v -> Bool

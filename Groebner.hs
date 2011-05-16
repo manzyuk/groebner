@@ -1,5 +1,5 @@
 {-# LANGUAGE FlexibleContexts, PatternGuards #-}
-module Groebner where
+module Groebner (nf, groebner) where
 
 import Monomial
 import Polynomial

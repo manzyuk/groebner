@@ -1,5 +1,14 @@
 {-# LANGUAGE FlexibleContexts #-}
-module Polynomial where
+module Polynomial
+    ( Term
+    , (*^)
+    , Polynomial
+    , constant
+    , variable
+    , lm
+    , spoly
+    )
+    where
 
 import Degree
 import Monomial
