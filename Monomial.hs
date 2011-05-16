@@ -1,13 +1,14 @@
 module Monomial
     ( Monomial
     , inject
-    , degree
+    , Monomial.exponent
     , support
     , complement
     , isDivisibleBy
-    , HasTotalDegree (..)
     )
     where
+
+import Degree
 
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -22,8 +23,8 @@ newtype Monomial o v = M (Map v Int) deriving Eq
 inject :: Eq v => v -> Monomial o v
 inject x = M $ Map.singleton x 1
 
-degree :: Ord v => v -> Monomial o v -> Int
-degree x (M m) = fromMaybe 0 (Map.lookup x m)
+exponent :: Ord v => v -> Monomial o v -> Int
+exponent x (M m) = fromMaybe 0 (Map.lookup x m)
 
 support :: Ord v => Monomial o v -> [(v, Int)]
 support (M m) = [ p | p@(x, n) <- Map.toList m, n /= 0 ]
@@ -46,11 +47,8 @@ instance Ord v => Monoid (Monomial o v) where
     mempty = M Map.empty
     M a `mappend` M b = M $ Map.unionWith (+) a b
 
-class HasTotalDegree a where
-    totalDegree :: a -> Int
-
-instance Ord v => HasTotalDegree (Monomial o v) where
-    totalDegree (M m) = Map.fold (+) 0 m
+instance Ord v => HasDegree (Monomial o v) where
+    degree (M m) = Map.fold (+) 0 m
 
 lcm :: Ord v => Monomial o v -> Monomial o v -> Monomial o v
 lcm (M a) (M b) = M $ Map.unionWith max a b

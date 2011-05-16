@@ -1,6 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Polynomial where
 
+import Degree
 import Monomial
 
 import Data.Monoid
@@ -16,9 +17,9 @@ newtype Polynomial r o v = P [Term r o v] deriving Eq
 (*^) :: (Num r, Ord v) => Term r o v -> Polynomial r o v -> Polynomial r o v
 u *^ P vs = P [ u `mappend` v | v <- vs ]
 
-instance Ord v => HasTotalDegree (Polynomial r o v) where
-    totalDegree (P []) = -1
-    totalDegree (P ts) = maximum [ totalDegree m | T _ m <- ts ]
+instance Ord v => HasDegree (Polynomial r o v) where
+    degree (P []) = -1
+    degree (P ts) = maximum [ degree m | T _ m <- ts ]
 
 instance (Num r, Ord v, Show v) => Show (Polynomial r o v) where
     show (P [])     = "0"
