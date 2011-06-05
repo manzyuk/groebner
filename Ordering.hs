@@ -9,7 +9,7 @@ module Ordering
     )
     where
 
-import Monomial (Monomial, exponent)
+import Monomial (Monomial, exponent, uninterleave)
 import Types
 
 import Prelude hiding (lex, exponent)
@@ -47,6 +47,10 @@ instance Enumerable v => Ord (Monomial v DegLex) where
 instance Enumerable v => Ord (Monomial v DegRevLex) where
     (<) = degrevlex
 
-instance (Eq v1, Eq v2, Ord (Monomial v1 o1), Ord (Monomial v2 o2))
+-- Product (or block) orderings
+instance (Ord v1, Ord v2, Ord (Monomial v1 o1), Ord (Monomial v2 o2))
     => Ord (Monomial (v1 :<: v2) (o1, o2)) where
-        (<) = undefined
+        z1 < z2 = x1 < x2 || (x1 == x2 && y1 < y2)
+            where
+              (x1, y1) = uninterleave z1
+              (x2, y2) = uninterleave z2

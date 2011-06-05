@@ -8,6 +8,7 @@ module Monomial
     , variables
     , complement
     , isDivisibleBy
+    , uninterleave
     )
     where
 
@@ -89,10 +90,10 @@ complement m n = lcm m n `div` m
 isDivisibleBy :: Ord v => Monomial v o -> Monomial v o -> Bool
 isDivisibleBy (M a) (M b) = Map.isSubmapOfBy (<=) b a
 
-interleave :: (Ord v1, Ord v2)
-           => Monomial (v1 :<: v2) (o1, o2)
-           -> (Monomial v1 o1, Monomial v2 o2)
-interleave m = (fromList l1, fromList l2)
+uninterleave :: (Ord v1, Ord v2)
+             => Monomial (v1 :<: v2) (o1, o2)
+             -> (Monomial v1 o1, Monomial v2 o2)
+uninterleave m = (fromList l1, fromList l2)
     where
       l  = toList m
       l1 = [ (x, a) | (Inl x, a) <- l ]

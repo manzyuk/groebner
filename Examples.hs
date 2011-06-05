@@ -15,16 +15,18 @@ basis :: Ord (Monomial (X :<: Y) o) => [Polynomial Rational (X :<: Y) o]
 basis = groebner ideal
 
 main = putStr . unlines $
-       [ "Ideal: "
+       [ "Ideal:"
        , ppr (ideal :: [Polynomial Rational (X :<: Y) Lex])
-       , "Lex basis: "
+       , "Lex basis:"
        , ppr (basis :: [Polynomial Rational (X :<: Y) Lex])
-       , "Revlex basis: "
+       , "Revlex basis:"
        , ppr (basis :: [Polynomial Rational (X :<: Y) RevLex])
-       , "Deglex basis: "
+       , "Deglex basis:"
        , ppr (basis :: [Polynomial Rational (X :<: Y) DegLex])
-       , "Degrevlex basis: "
+       , "Degrevlex basis:"
        , ppr (basis :: [Polynomial Rational (X :<: Y) DegRevLex])
+       , "(Lex, Lex) basis:"
+       , ppr (basis :: [Polynomial Rational (X :<: Y) (Lex, Lex)])
        ]
     where
       ppr :: Ord (Monomial (X :<: Y) o)
