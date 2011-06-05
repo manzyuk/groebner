@@ -1,4 +1,5 @@
-{-# LANGUAGE FlexibleInstances, EmptyDataDecls #-}
+{-# LANGUAGE FlexibleInstances, FlexibleContexts #-}
+{-# LANGUAGE EmptyDataDecls, TypeOperators       #-}
 module Ordering
     ( Lex
     , RevLex
@@ -8,15 +9,10 @@ module Ordering
     )
     where
 
-import Degree
 import Monomial (Monomial, exponent)
+import Types
 
 import Prelude hiding (lex, exponent)
-
--- Class of enumerable types.  We add 'Ord' to the context in order to
--- save some typing (and because it makes sense).
-class Ord a => Enumerable a where
-    enumerate :: [a]
 
 data Lex         -- Lexicographic ordering
 data RevLex      -- Reverse lexicographic ordering
@@ -50,3 +46,7 @@ instance Enumerable v => Ord (Monomial v DegLex) where
 
 instance Enumerable v => Ord (Monomial v DegRevLex) where
     (<) = degrevlex
+
+instance (Eq v1, Eq v2, Ord (Monomial v1 o1), Ord (Monomial v2 o2))
+    => Ord (Monomial (v1 :<: v2) (o1, o2)) where
+        (<) = undefined

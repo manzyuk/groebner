@@ -10,8 +10,8 @@ module Polynomial
     )
     where
 
-import Degree
 import Monomial
+import Types
 
 import Data.Monoid
 

@@ -1,39 +1,15 @@
-{-# LANGUAGE TypeOperators, MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances, FlexibleContexts  #-}
-{-# LANGUAGE OverlappingInstances                 #-}
-{-# LANGUAGE TemplateHaskell                      #-}
+{-# LANGUAGE TemplateHaskell, FlexibleInstances, FlexibleContexts #-}
 module Variable where
 
 import Monomial
 import Ordering
 import Polynomial
+import Types
 
 import Control.Arrow
 import Control.Monad
 import Data.Char
 import Language.Haskell.TH
-
-data a :<: b = Inl a | Inr b deriving (Eq, Ord)
-infixr 6 :<:
-
-instance (Show a, Show b) => Show (a :<: b) where
-    show (Inl x) = show x
-    show (Inr x) = show x
-
-instance (Enumerable a, Enumerable b) => Enumerable (a :<: b) where
-    enumerate = map Inl enumerate ++ map Inr enumerate
-
-class Sub a b where
-    inj :: a -> b
-
-instance Sub a a where
-    inj = id
-
-instance Sub a (a :<: b) where
-    inj = Inl
-
-instance Sub a c => Sub a (b :<: c) where
-    inj = Inr . inj
 
 var :: (Sub v w, Ord (Monomial w o), Num r, Eq w) => v -> Polynomial r w o
 var = variable . inj

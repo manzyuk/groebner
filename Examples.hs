@@ -3,6 +3,7 @@ import Groebner
 import Ordering
 import Monomial
 import Polynomial
+import Types
 import Variable
 
 $(defineVariables ["X", "Y"])

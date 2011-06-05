@@ -1,3 +1,4 @@
+{-# LANGUAGE TypeOperators #-}
 module Monomial
     ( Monomial
     , inject
@@ -10,7 +11,7 @@ module Monomial
     )
     where
 
-import Degree
+import Types
 
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -87,3 +88,12 @@ complement m n = lcm m n `div` m
 -- Test whether one monomial is divisible by another.
 isDivisibleBy :: Ord v => Monomial v o -> Monomial v o -> Bool
 isDivisibleBy (M a) (M b) = Map.isSubmapOfBy (<=) b a
+
+interleave :: (Ord v1, Ord v2)
+           => Monomial (v1 :<: v2) (o1, o2)
+           -> (Monomial v1 o1, Monomial v2 o2)
+interleave m = (fromList l1, fromList l2)
+    where
+      l  = toList m
+      l1 = [ (x, a) | (Inl x, a) <- l ]
+      l2 = [ (x, a) | (Inr x, a) <- l ]
