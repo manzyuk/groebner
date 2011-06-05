@@ -1,31 +1,31 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, TypeOperators, TemplateHaskell #-}
 import Groebner
 import Ordering
 import Monomial
 import Polynomial
+import Variable
 
-data XY = X | Y deriving (Eq, Ord, Show)
+$(defineVariables ["X", "Y"])
 
-instance Enumerable XY where
-    enumerate = [X, Y]
-
-x, y :: Ord (Monomial XY o) => Polynomial Rational XY o
-x = variable X
-y = variable Y
-
-ideal :: Ord (Monomial XY o) => [Polynomial Rational XY o]
+ideal :: Ord (Monomial (X :<: Y) o) => [Polynomial Rational (X :<: Y) o]
 ideal = [x ^ 10 + x ^ 9 * y ^ 2, y ^ 8 - x ^ 2 * y ^ 7]
 
-basis :: Ord (Monomial XY o) => [Polynomial Rational XY o]
+basis :: Ord (Monomial (X :<: Y) o) => [Polynomial Rational (X :<: Y) o]
 basis = groebner ideal
 
-main = do putStrLn $ "Ideal: "
-                       ++ show (ideal :: [Polynomial Rational XY Lex])
-          putStrLn $ "Lex basis: "
-                       ++ show (basis :: [Polynomial Rational XY Lex])
-          putStrLn $ "Revlex basis: "
-                       ++ show (basis :: [Polynomial Rational XY RevLex])
-          putStrLn $ "Deglex basis: "
-                       ++ show (basis :: [Polynomial Rational XY DegLex])
-          putStrLn $ "Degrevlex basis: "
-                       ++ show (basis :: [Polynomial Rational XY DegRevLex])
+main = putStr . unlines $
+       [ "Ideal: "
+       , ppr (ideal :: [Polynomial Rational (X :<: Y) Lex])
+       , "Lex basis: "
+       , ppr (basis :: [Polynomial Rational (X :<: Y) Lex])
+       , "Revlex basis: "
+       , ppr (basis :: [Polynomial Rational (X :<: Y) RevLex])
+       , "Deglex basis: "
+       , ppr (basis :: [Polynomial Rational (X :<: Y) DegLex])
+       , "Degrevlex basis: "
+       , ppr (basis :: [Polynomial Rational (X :<: Y) DegRevLex])
+       ]
+    where
+      ppr :: Ord (Monomial (X :<: Y) o)
+          => [Polynomial Rational (X :<: Y) o] -> String
+      ppr = unlines . map (("  " ++) . show)
