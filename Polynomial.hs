@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleContexts, TypeOperators #-}
 module Polynomial
     ( Term
     , (*^)
@@ -7,6 +7,7 @@ module Polynomial
     , variable
     , lm
     , spoly
+    , demote
     )
     where
 
@@ -107,3 +108,14 @@ spoly f@(P (u@(T a m):us)) g@(P (v@(T b n):vs)) = n' *^ f - m' *^ g
     where
       n' = T 1       (complement m n)
       m' = T (a / b) (complement n m)
+
+-- The following function is only used when the input polynomial is
+-- effectively a polynomial from r[v2] to adjust its type.
+demote :: ( Fractional r
+          , Ord v1, Ord v2
+          , Show v1, Show v2
+          , Ord (Monomial v1 o1)
+          , Ord (Monomial v2 o2))
+       => Polynomial r (v1 :>: v2) (o1, o2) -> Polynomial r v2 o2
+demote (P us) = P [ T c y | T c z <- us
+                          , let (x, y) = uninterleave z ]

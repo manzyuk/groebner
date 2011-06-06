@@ -13,14 +13,14 @@ class HasDegree a where
 class Ord a => Enumerable a where
     enumerate :: [a]
 
-data a :<: b = Inl a | Inr b deriving (Eq, Ord)
-infixr 6 :<:
+data a :>: b = Inl a | Inr b deriving (Eq, Ord)
+infixr 6 :>:
 
-instance (Show a, Show b) => Show (a :<: b) where
+instance (Show a, Show b) => Show (a :>: b) where
     show (Inl x) = show x
     show (Inr x) = show x
 
-instance (Enumerable a, Enumerable b) => Enumerable (a :<: b) where
+instance (Enumerable a, Enumerable b) => Enumerable (a :>: b) where
     enumerate = map Inl enumerate ++ map Inr enumerate
 
 class Sub a b where
@@ -29,8 +29,8 @@ class Sub a b where
 instance Sub a a where
     inj = id
 
-instance Sub a (a :<: b) where
+instance Sub a (a :>: b) where
     inj = Inl
 
-instance Sub a c => Sub a (b :<: c) where
+instance Sub a c => Sub a (b :>: c) where
     inj = Inr . inj
