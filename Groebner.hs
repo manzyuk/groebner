@@ -9,7 +9,7 @@ import Data.List
 
 -- Normal form of a polynomial with respect to a list of polynomials
 -- using Buchberger's algorithm.
-nf :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
+nf :: (Eq r, Fractional r, Ord v, Show v, Ord (Monomial v o))
    => Polynomial r v o -> [Polynomial r v o] -> Polynomial r v o
 nf f s = go f
     where
@@ -21,7 +21,7 @@ nf f s = go f
 
 -- Groebner basis algorithm.  Takes a list of generators of an ideal
 -- and returns a Groebner basis of that ideal.
-groebner :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
+groebner :: (Eq r, Fractional r, Ord v, Show v, Ord (Monomial v o))
          => [Polynomial r v o] -> [Polynomial r v o]
 groebner i = go i ps
     where

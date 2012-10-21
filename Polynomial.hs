@@ -40,7 +40,7 @@ instance Ord v => HasDegree (Polynomial r v o) where
 -- We are trying to make the display of polynomials as close to the
 -- mathematical notation as possible.  Since we don't know what the
 -- ground field 'r' can be, we apply some heuristics.
-instance (Num r, Ord v, Show v) => Show (Polynomial r v o) where
+instance (Eq r, Show r, Num r, Ord v, Show v) => Show (Polynomial r v o) where
     show (P [])     = "0"
     show (P (t:ts)) = showHead t ++ showTail ts
         where
@@ -61,7 +61,7 @@ instance (Num r, Ord v, Show v) => Show (Polynomial r v o) where
 
 -- Arithmetic operations on polynomials are defined to preserve the
 -- invariant of the representation of polynomials.
-instance (Num r, Ord v, Show v, Ord (Monomial v o))
+instance (Eq r, Num r, Ord v, Show v, Ord (Monomial v o))
     => Num (Polynomial r v o) where
     f@(P (u@(T a m):us)) + g@(P (v@(T b n):vs))
         | m == n && a + b /= 0
@@ -88,7 +88,7 @@ instance (Num r, Ord v, Show v, Ord (Monomial v o))
     fromInteger = constant . fromInteger
 
 -- View a constant 'c' as a polynomial (of degree 0 unless c is 0).
-constant :: (Num r, Ord v) => r -> Polynomial r v o
+constant :: (Eq r, Num r, Ord v) => r -> Polynomial r v o
 constant 0 = P []
 constant c = P [T c mempty]
 
@@ -102,7 +102,7 @@ lm (P ((T _ m):_)) = m
 lm (P [])          = error "lm: zero polynomial"
 
 -- s-polynomial of a pair of polynomials.
-spoly :: (Fractional r, Ord v, Show v, Ord (Monomial v o))
+spoly :: (Eq r, Fractional r, Ord v, Show v, Ord (Monomial v o))
       => Polynomial r v o -> Polynomial r v o -> Polynomial r v o
 spoly f@(P (u@(T a m):us)) g@(P (v@(T b n):vs)) = n' *^ f - m' *^ g
     where
@@ -110,12 +110,12 @@ spoly f@(P (u@(T a m):us)) g@(P (v@(T b n):vs)) = n' *^ f - m' *^ g
       m' = T (a / b) (complement n m)
 
 -- The following function is only used when the input polynomial is
--- effectively a polynomial from r[v2] to adjust its type.
+-- effectively a polynomial from r[v1] to adjust its type.
 demote :: ( Fractional r
           , Ord v1, Ord v2
           , Show v1, Show v2
           , Ord (Monomial v1 o1)
           , Ord (Monomial v2 o2))
-       => Polynomial r (v1 :>: v2) (o1, o2) -> Polynomial r v2 o2
-demote (P us) = P [ T c y | T c z <- us
-                          , let (x, y) = uninterleave z ]
+       => Polynomial r (v1 :<: v2) (o1, o2) -> Polynomial r v1 o1
+demote (P us) = P [ T c x | T c z <- us
+                          , let (x, _) = uninterleave z ]

@@ -59,7 +59,7 @@ instance ( Ord v1, Ord v2
          , Show v1, Show v2
          , Ord (Monomial v1 o1)
          , Ord (Monomial v2 o2))
-    => Ord (Monomial (v1 :>: v2) (o1, o2)) where
+    => Ord (Monomial (v1 :<: v2) (o1, o2)) where
         z1 <= z2 = x1 <= x2 && (x1 /= x2 || y1 <= y2)
             where
               (x1, y1) = uninterleave z1
