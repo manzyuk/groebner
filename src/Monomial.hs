@@ -61,12 +61,14 @@ instance (Ord v, Show v) => Show (Monomial v o) where
         where
           support = toList m
 
+instance Ord v => Semigroup (Monomial v o) where
+    M a <> M b = M $ Map.unionWith (+) a b
+
 instance Ord v => Monoid (Monomial v o) where
     mempty = M Map.empty
-    M a `mappend` M b = M $ Map.unionWith (+) a b
 
 instance Ord v => HasDegree (Monomial v o) where
-    degree (M m) = Map.fold (+) 0 m
+    degree (M m) = Map.foldr (+) 0 m
 
 -- Least common multiple of monomials.
 lcm :: Ord v => Monomial v o -> Monomial v o -> Monomial v o

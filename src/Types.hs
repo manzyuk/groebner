@@ -1,6 +1,5 @@
 {-# LANGUAGE TypeOperators, MultiParamTypeClasses #-}
 {-# LANGUAGE FlexibleInstances, FlexibleContexts  #-}
-{-# LANGUAGE OverlappingInstances                 #-}
 module Types where
 
 -- Both monomials and polynomials have degree, so it is convenient to
@@ -29,7 +28,7 @@ class Sub a b where
 instance Sub a a where
     inj = id
 
-instance Sub a (a :<: b) where
+instance {-# OVERLAPPING #-} Sub a (a :<: b) where
     inj = Inl
 
 instance Sub a c => Sub a (b :<: c) where

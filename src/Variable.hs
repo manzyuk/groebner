@@ -21,7 +21,8 @@ var = variable . inj
 --     data X = X deriving (Eq, Ord, Show)
 defineData :: Name -> Q Dec
 defineData name
-    = dataD (cxt []) name [] [normalC name []] [''Eq, ''Ord, ''Show]
+    = dataD (cxt []) name [] Nothing [normalC name []]
+      [derivClause Nothing [conT ''Eq, conT ''Ord, conT ''Show]]
 
 -- $(defineInst (mkName "X")) produces the following instance
 -- declaration:
@@ -37,10 +38,10 @@ defineInst name
 defineType :: Name -> Q Type
 defineType name
     = forallT [o_tv, r_tv, w_tv]
-      (cxt [ classP ''Sub [conT name, w]
-           , classP ''Ord [appManyT (conT ''Monomial) [w, o]]
-           , classP ''Num [r]
-           , classP ''Eq  [w]
+      (cxt [ conT ''Sub `appT` conT name `appT` w
+           , conT ''Ord `appT` appManyT (conT ''Monomial) [w, o]
+           , conT ''Num `appT` r
+           , conT ''Eq  `appT` w
            ])
       (appManyT (conT ''Polynomial) [r, w, o])
     where
@@ -63,7 +64,7 @@ defineSig var_name ty_name
 --     x = var X
 defineVal :: Name -> Name -> Q Dec
 defineVal var_name con_name
-    = valD (varP var_name) (normalB (appE (global 'var) (conE con_name))) []
+    = valD (varP var_name) (normalB (appE (varE 'var) (conE con_name))) []
 
 -- $(defineVariable "Foo") combines the above: it defines a data type
 -- with a unique constructor Foo, makes it an instance of Enumerable,

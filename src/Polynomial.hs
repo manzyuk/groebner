@@ -18,9 +18,11 @@ import Data.Monoid
 
 data Term r v o = T r (Monomial v o) deriving (Eq, Show)
 
+instance (Num r, Ord v) => Semigroup (Term r v o) where
+    T a m <> T b n = T (a * b) (m `mappend` n)
+
 instance (Num r, Ord v) => Monoid (Term r v o) where
     mempty = T 1 mempty
-    T a m `mappend` T b n = T (a * b) (m `mappend` n)
 
 -- Polynomials are represented as lists of non-zero terms, ordered in
 -- descending order by their monomials.  This makes equality test and
