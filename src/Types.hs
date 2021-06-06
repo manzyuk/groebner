@@ -1,6 +1,15 @@
-{-# LANGUAGE TypeOperators, MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances, FlexibleContexts  #-}
+{-# LANGUAGE ConstraintKinds       #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE PolyKinds             #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE TypeOperators         #-}
 module Types where
+
+import Data.Proxy
 
 -- Both monomials and polynomials have degree, so it is convenient to
 -- have an overloaded function 'degree'.
@@ -22,14 +31,31 @@ instance (Show a, Show b) => Show (a :<: b) where
 instance (Enumerable a, Enumerable b) => Enumerable (a :<: b) where
     enumerate = map Inl enumerate ++ map Inr enumerate
 
-class Sub a b where
-    inj :: a -> b
+data Nat = Zero | Succ Nat
 
-instance Sub a a where
-    inj = id
+type family Index (t :: *) (u :: *) :: Nat where
+  Index t t = Zero
+  Index t (t :<: u) = Zero
+  Index t (u :<: v) = Succ (Index t v)
 
-instance {-# OVERLAPPING #-} Sub a (a :<: b) where
-    inj = Inl
+type family IsLast (t :: *) (u :: *) :: Bool where
+  IsLast t t = True
+  IsLast t (t :<: u) = False
+  IsLast t (u :<: v) = IsLast t v
 
-instance Sub a c => Sub a (b :<: c) where
-    inj = Inr . inj
+class SubN (n :: Nat) (isLast :: Bool) a b where
+  injN :: Proxy n -> Proxy isLast -> a -> b
+
+instance SubN Zero True a a where
+  injN _ _ = id
+
+instance SubN Zero False a (a :<: b) where
+  injN _ _ = Inl
+
+instance SubN n isLast a c => SubN (Succ n) isLast a (b :<: c) where
+  injN _ _ = Inr . injN (Proxy :: Proxy n) (Proxy :: Proxy isLast)
+
+type Sub a b = SubN (Index a b) (IsLast a b) a b
+
+inj :: forall a b. Sub a b => a -> b
+inj = injN (Proxy :: Proxy (Index a b)) (Proxy :: Proxy (IsLast a b))
